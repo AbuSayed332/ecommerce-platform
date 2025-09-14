@@ -17,7 +17,7 @@ This section answers your question about **which modules are used**. List the ma
 *   **Backend:**
     *   [Node.js](https://nodejs.org/)
     *   [Express.js](https://expressjs.com/)
-    *   [PostgreSQL](https://www.postgresql.org/) or [MongoDB](https://www.mongodb.com/)
+    *   [MongoDB](https://www.mongodb.com/)
 *   **Authentication:**
     *   [JSON Web Tokens (JWT)](https://jwt.io/)
     *   [bcrypt.js](https://www.npmjs.com/package/bcrypt)
