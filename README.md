@@ -69,7 +69,7 @@ List all the software you need to have installed before you can run the project.
 4.  **Set up Environment Variables**
     Many projects require a `.env` file for secret keys and configuration. Create a `.env` file in your `backend` directory and add the necessary variables.
     ```
-    DATABASE_URL="postgresql://user:password@localhost:5432/your_db_name"
+    MONGODB_URI=mongodb+srv://user:password@localhost:5432/your_db_name"
     JWT_SECRET="your_super_secret_key"
     STRIPE_API_KEY="sk_test_..."
     ```
