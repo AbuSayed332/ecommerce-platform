@@ -1,0 +1,1 @@
+export type { WishlistResponse } from './wishlist-response.interface';

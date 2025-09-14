@@ -1,0 +1,1 @@
+export type { ReviewResponse } from './review-response.interface';

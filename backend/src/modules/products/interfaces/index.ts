@@ -1,0 +1,1 @@
+export type { ProductResponseInterface } from './product-response.interface';
