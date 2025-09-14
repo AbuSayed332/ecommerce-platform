@@ -16,7 +16,7 @@ This section answers your question about **which modules are used**. List the ma
     *   [Axios](https://axios-http.com/)
 *   **Backend:**
     *   [Node.js](https://nodejs.org/)
-    *   [Express.js](https://expressjs.com/)
+    *   [Nest.js](https://nestjs.com/)
     *   [MongoDB](https://www.mongodb.com/)
 *   **Authentication:**
     *   [JSON Web Tokens (JWT)](https://jwt.io/)
