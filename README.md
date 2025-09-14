@@ -79,7 +79,7 @@ List all the software you need to have installed before you can run the project.
 1.  **Start the Backend Server**
     In the `backend` directory:
     ```sh
-    npm run dev
+    npm run start:dev
     ```
 
 2.  **Start the Frontend Development Server**
