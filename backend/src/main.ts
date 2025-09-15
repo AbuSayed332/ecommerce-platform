@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
@@ -13,6 +12,7 @@ import { join } from 'path';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   // Winston Logger Configuration
@@ -48,20 +48,27 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger,
   });
-
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);
   const environment = configService.get<string>('NODE_ENV', 'development');
 
   // Security Middleware
+  const cspDirectives = {
+    defaultSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"], // 'unsafe-inline' for swagger customCss
+    scriptSrc: ["'self'", "'unsafe-inline'"],
+    imgSrc: ["'self'", 'data:', 'https:'],
+  };
+
+  if (environment !== 'production') {
+    // Loosen CSP for Swagger UI in non-production environments
+    cspDirectives.styleSrc.push('https://unpkg.com');
+    cspDirectives.scriptSrc.push('https://unpkg.com');
+  }
+
   app.use(helmet({
     contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-      },
+      directives: cspDirectives,
     },
     crossOriginEmbedderPolicy: false,
   }));
@@ -86,6 +93,10 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   // Static Files
+  // Serve files from the 'public' directory at the root (for swagger-ui-custom.css)
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/public/',
+  });
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
@@ -157,10 +168,10 @@ async function bootstrap() {
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, document, {
+    SwaggerModule.setup('api/v1/docs', app, document, {
       customSiteTitle: 'E-commerce API Documentation',
       customCss: '.swagger-ui .topbar { display: none }',
-      customCssUrl: '/swagger-ui-custom.css',
+      customCssUrl: '/public/swagger-ui-custom.css',
       swaggerOptions: {
         persistAuthorization: true,
         displayRequestDuration: true,
@@ -192,10 +203,6 @@ async function bootstrap() {
   logger.log(`🚀 Application is running on: http://localhost:${port}`, 'Bootstrap');
   logger.log(`🌍 Environment: ${environment}`, 'Bootstrap');
   logger.log(`📊 Health Check: http://localhost:${port}/api/v1/health`, 'Bootstrap');
-  
-  if (environment !== 'production') {
-    logger.log(`📚 Swagger Docs: http://localhost:${port}/api/v1/docs`, 'Bootstrap');
-  }
 }
 
 // Handle uncaught exceptions
