@@ -16,8 +16,13 @@ This section answers your question about **which modules are used**. List the ma
     *   [Axios](https://axios-http.com/)
 *   **Backend:**
     *   [Node.js](https://nodejs.org/)
+<<<<<<< HEAD
     *   [Express.js](https://expressjs.com/)
     *   [PostgreSQL](https://www.postgresql.org/) or [MongoDB](https://www.mongodb.com/)
+=======
+    *   [Nest.js](https://nestjs.com/)
+    *   [MongoDB](https://www.mongodb.com/)
+>>>>>>> 82e5273034c9dbf341b8c5e2432f9a0c2624d161
 *   **Authentication:**
     *   [JSON Web Tokens (JWT)](https://jwt.io/)
     *   [bcrypt.js](https://www.npmjs.com/package/bcrypt)
@@ -69,7 +74,11 @@ List all the software you need to have installed before you can run the project.
 4.  **Set up Environment Variables**
     Many projects require a `.env` file for secret keys and configuration. Create a `.env` file in your `backend` directory and add the necessary variables.
     ```
+<<<<<<< HEAD
     DATABASE_URL="postgresql://user:password@localhost:5432/your_db_name"
+=======
+    MONGODB_URI=mongodb+srv://user:password@localhost:5432/your_db_name"
+>>>>>>> 82e5273034c9dbf341b8c5e2432f9a0c2624d161
     JWT_SECRET="your_super_secret_key"
     STRIPE_API_KEY="sk_test_..."
     ```
@@ -79,7 +88,11 @@ List all the software you need to have installed before you can run the project.
 1.  **Start the Backend Server**
     In the `backend` directory:
     ```sh
+<<<<<<< HEAD
     npm run dev
+=======
+    npm run start:dev
+>>>>>>> 82e5273034c9dbf341b8c5e2432f9a0c2624d161
     ```
 
 2.  **Start the Frontend Development Server**

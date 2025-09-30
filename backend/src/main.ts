@@ -13,44 +13,53 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
+ 
+// Winston Logger Configuration
+const logger = WinstonModule.createLogger({
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.colorize(),
+        winston.format.printf(({ timestamp, level, message, context }) => {
+          return `${timestamp} [${context}] ${level}: ${message}`;
+        }),
+      ),
+    }),
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+      ),
+    }),
+    new winston.transports.File({
+      filename: 'logs/combined.log',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+      ),
+    }),
+  ],
+});
+ 
 async function bootstrap() {
-  // Winston Logger Configuration
-  const logger = WinstonModule.createLogger({
-    transports: [
-      new winston.transports.Console({
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.colorize(),
-          winston.format.printf(({ timestamp, level, message, context }) => {
-            return `${timestamp} [${context}] ${level}: ${message}`;
-          }),
-        ),
-      }),
-      new winston.transports.File({
-        filename: 'logs/error.log',
-        level: 'error',
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.json(),
-        ),
-      }),
-      new winston.transports.File({
-        filename: 'logs/combined.log',
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.json(),
-        ),
-      }),
-    ],
-  });
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger,
   });
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);
   const environment = configService.get<string>('NODE_ENV', 'development');
+
+  // Static Files
+  // Serve files from the 'public' directory at the root (for swagger-ui-custom.css)
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/public/',
+  });
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // Security Middleware
   const cspDirectives = {
@@ -91,15 +100,6 @@ async function bootstrap() {
 
   // Global Prefix
   app.setGlobalPrefix('api/v1');
-
-  // Static Files
-  // Serve files from the 'public' directory at the root (for swagger-ui-custom.css)
-  app.useStaticAssets(join(__dirname, '..', 'public'), {
-    prefix: '/public/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/uploads/',
-  });
 
   // Global Pipes
   app.useGlobalPipes(
@@ -207,16 +207,16 @@ async function bootstrap() {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
+  logger.error('Uncaught Exception:', error, 'Process');
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`, 'Process');
   process.exit(1);
 });
 
-bootstrap().catch((error) => {
-  console.error('Application failed to start:', error);
+bootstrap().catch(error => {
+  logger.error('Application failed to start:', error, 'Bootstrap');
   process.exit(1);
 });
